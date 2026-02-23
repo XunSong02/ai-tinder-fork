@@ -109,11 +109,75 @@ body {
   transform: translateY(0) scale(1);
   will-change: transform;
   transition: transform 220ms ease, opacity 220ms ease, filter 220ms ease;
+  /* Finding 7: prevent browser scroll/zoom from swallowing pointer events on mobile */
+  touch-action: none;
+  /* Finding 7: prevent text highlight during drag */
+  user-select: none;
+  cursor: grab;
 }
 
-.card:nth-child(1) { transform: translateY(0) scale(1); }
-.card:nth-child(2) { transform: translateY(10px) scale(0.985); filter: brightness(0.95); }
-.card:nth-child(3) { transform: translateY(20px) scale(0.97); filter: brightness(0.9); }
+/* Finding 6: explicit z-index so :nth-child(1) is actually rendered on top.
+   Without this, position:absolute makes the LAST child paint on top, which
+   contradicts the scale/brightness rules below. */
+.card:nth-child(1) { z-index: 3; transform: translateY(0) scale(1); }
+.card:nth-child(2) { z-index: 2; transform: translateY(10px) scale(0.985); filter: brightness(0.95); }
+.card:nth-child(3) { z-index: 1; transform: translateY(20px) scale(0.97); filter: brightness(0.9); }
+
+/* Finding 4: stamp overlays shown during drag (LIKE / NOPE / SUPER) */
+.card__stamp {
+  position: absolute;
+  padding: 8px 18px;
+  border-radius: 8px;
+  font-size: 26px;
+  font-weight: 900;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 10;
+  border: 4px solid currentColor;
+  transition: opacity 60ms linear;
+}
+.card__stamp--like {
+  top: 28px;
+  left: 20px;
+  color: var(--like);
+  transform: rotate(-15deg);
+}
+.card__stamp--nope {
+  top: 28px;
+  right: 20px;
+  color: var(--nope);
+  transform: rotate(15deg);
+}
+.card__stamp--super {
+  bottom: 40%;
+  left: 50%;
+  transform: translateX(-50%) rotate(0deg);
+  color: var(--super);
+}
+
+/* Photo progress dots — sit at the top of the card image area */
+.card__dots {
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 5px;
+  z-index: 5;
+  pointer-events: none;
+}
+.card__dot {
+  width: 28px;
+  height: 3px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.4);
+  transition: background 150ms ease;
+}
+.card__dot--active {
+  background: #fff;
+}
 
 .card__media {
   height: 70%;
